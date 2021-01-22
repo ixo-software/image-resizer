@@ -11,7 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@gumlet/gif-resize": "^1.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "gifsicle-stream": "^1.0.0",
