@@ -3,7 +3,9 @@ const express = require("express");
 const fs = require("fs");
 const { resize } = require("./services/resizer");
 
+// envs
 const hasToSavingThumb = process.env.SAVING_THUMB === "true";
+const publicPath = process.env.PUBLIC_PATH;
 
 // server
 const app = express();
@@ -11,7 +13,7 @@ const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 const supportedDimensions = process.env.SUPPORTED_DIMENSIONS.split("|");
 
-app.use(express.static(process.env.PUBLIC_PATH || "public"));
+app.use(express.static(publicPath || "public"));
 
 app.get("/thumb_x:dimensions/*", function (req, res) {
   const pDimensions = req.params.dimensions;
@@ -27,11 +29,11 @@ app.get("/thumb_x:dimensions/*", function (req, res) {
     try {
       const width = parseInt(dimensions[0]) || undefined;
       const height = parseInt(dimensions[1]) || undefined;
-      const mediaPath = `public${req.path}`.replace(
+      const mediaPath = `${publicPath}${req.path}`.replace(
         `/thumb_x${pDimensions}`,
         ""
       );
-      const cachedPath = `public${req.path}`;
+      const cachedPath = `${publicPath}${req.path}`;
 
       if (!fs.existsSync(mediaPath)) {
         return res.redirect(301, `/no-image.jpg`);
