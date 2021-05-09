@@ -40,7 +40,7 @@ function resize(originalPath, width, height, urlPath, enableSaveFile = true) {
     .toBuffer()
     .then((resizedBuffer) => {
       return imagemin.buffer(resizedBuffer, {
-        plugins: [imageminJpegtran(), imageminPngquant({ quality: "80" })],
+        plugins: [imageminJpegtran(), imageminPngquant({ quality: [0.3, 1] })],
       });
     })
     .then((outputBuffer) => {
