@@ -1,9 +1,11 @@
 module.exports = {
   apps : [{
-    name: "image-resize",
     script: 'index.js',
+    name: 'media-ds-resizer',
+    instances: 3,
+    max_memory_restart: '350M',
     env: {
-      NODE_ENV: 'production'
+	    NODE_ENV: 'production',
     }
   }],
 };

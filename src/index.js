@@ -13,6 +13,12 @@ const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 const supportedDimensions = process.env.SUPPORTED_DIMENSIONS.split("|");
 
+// Lưới an toàn cuối: Node >= 15 thoát process khi có Promise reject không được bắt.
+// Ghi log thay vì sập để pm2 không restart liên tục.
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+
 app.use(express.static(publicPath || "public"));
 
 app.get("/thumb_x:dimensions/*", function (req, res) {
@@ -45,10 +51,17 @@ app.get("/thumb_x:dimensions/*", function (req, res) {
         height,
         cachedPath,
         hasToSavingThumb
-      ).then((buffer) => {
-        res.setHeader("Content-Type", "image/jpeg");
-        res.send(buffer);
-      });
+      )
+        .then((buffer) => {
+          res.setHeader("Content-Type", "image/jpeg");
+          res.send(buffer);
+        })
+        .catch((error) => {
+          // File không phải ảnh hợp lệ (sharp reject) hoặc lỗi khác: trả về cho client,
+          // không để Promise reject làm process thoát -> pm2 restart
+          console.error(`[resize] ${mediaPath}:`, error.message);
+          if (!res.headersSent) res.redirect(302, `/no-image.jpg`);
+        });
     } catch (error) {
       console.log(error);
       return res.send("Not found");
